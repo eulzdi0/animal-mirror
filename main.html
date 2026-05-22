@@ -44,7 +44,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 32px 18px;
+      padding: clamp(16px, 4vw, 32px);
       animation: pageFade 0.45s ease both;
       position: relative;
     }
@@ -53,13 +53,13 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .card {
-      width: 100%;
+      width: min(100%, 1080px);
       max-width: 1080px;
       background: var(--card-bg);
       border: 2px solid #111;
-      border-radius: 28px;
-      padding: 36px;
-      box-shadow: 10px 10px 0 #111;
+      border-radius: clamp(18px, 3vw, 28px);
+      padding: clamp(18px, 4vw, 36px);
+      box-shadow: clamp(5px, 1.2vw, 10px) clamp(5px, 1.2vw, 10px) 0 #111;
       position: relative;
       z-index: 1;
     }
@@ -71,18 +71,18 @@
     }
     h2 {
       margin: 0 0 20px;
-      font-size: clamp(24px, 4vw, 38px);
+      font-size: clamp(22px, 4vw, 38px);
       line-height: 1.18;
     }
     h3 { margin: 0 0 12px; font-size: 20px; }
-    p { font-size: 18px; line-height: 1.65; color: var(--text-soft); }
+    p { font-size: clamp(15px, 2.2vw, 18px); line-height: 1.65; color: var(--text-soft); }
     .btn {
       border: none;
       background: #111;
       color: white;
-      padding: 15px 24px;
+      padding: clamp(12px, 2.4vw, 15px) clamp(18px, 3vw, 24px);
       border-radius: 999px;
-      font-size: 17px;
+      font-size: clamp(15px, 2vw, 17px);
       font-weight: 900;
       margin-top: 18px;
       transition: 0.2s ease;
@@ -93,7 +93,7 @@
       border: 2px solid #111;
       background: #fff;
       color: #111;
-      padding: 10px 16px;
+      padding: clamp(8px, 2vw, 10px) clamp(12px, 2.4vw, 16px);
       border-radius: 999px;
       font-weight: 900;
       box-shadow: 4px 4px 0 #111;
@@ -113,11 +113,19 @@
     .top-nav {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       margin-bottom: 22px;
+      flex-wrap: wrap;
     }
-    .right-tools { display: flex; align-items: center; gap: 10px; }
+    .right-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
     .tag {
       display: inline-block;
       background: #111;
@@ -139,8 +147,8 @@
     }
     .floating-card {
       position: absolute;
-      width: 150px;
-      height: 205px;
+      width: clamp(92px, 16vw, 150px);
+      height: clamp(126px, 22vw, 205px);
       border: 2px solid #111;
       border-radius: 18px;
       background: white;
@@ -172,7 +180,7 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
       gap: 16px;
       margin: 24px 0;
     }
@@ -214,24 +222,24 @@
     .option {
       width: 100%;
       display: flex;
-      gap: 16px;
+      gap: clamp(10px, 2vw, 16px);
       text-align: left;
       background: white;
       border: 2px solid #ddd;
       border-radius: 22px;
-      padding: 18px;
+      padding: clamp(14px, 2.8vw, 18px);
       margin-bottom: 14px;
-      font-size: 17px;
+      font-size: clamp(15px, 2.2vw, 17px);
       line-height: 1.45;
       transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
     }
     .option:hover { border-color: #111; }
     .option.selected { background: #111; color: white; border-color: #111; transform: scale(1.015); }
     .letter {
-      width: 36px; height: 36px; border-radius: 50%; background: #fbf1dd; color: #111;
+      width: clamp(32px, 7vw, 36px); height: clamp(32px, 7vw, 36px); border-radius: 50%; background: #fbf1dd; color: #111;
       display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0;
     }
-    .nav { display: flex; justify-content: space-between; margin-top: 24px; }
+    .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
     .loading-wrap { text-align: center; }
     .mirror-loader {
       width: 160px; height: 160px; margin: 20px auto 28px; border: 3px solid #111; border-radius: 50%;
@@ -254,7 +262,7 @@
     }
     .flip-card-wrap { perspective: 1200px; }
     .flip-card {
-      width: min(330px, 75vw);
+      width: min(330px, 78vw);
       aspect-ratio: 3 / 4;
       border: 2px solid #111;
       border-radius: 22px;
@@ -289,11 +297,11 @@
 
     /* Result layout based on sketch */
     .result-card {
-      max-width: 980px;
+      max-width: min(980px, 100%);
       background: rgba(255,255,255,0.94);
     }
     .result-name {
-      font-size: clamp(38px, 7vw, 72px);
+      font-size: clamp(32px, 7vw, 72px);
       letter-spacing: -1px;
       margin-bottom: 24px;
       border-bottom: 2px solid #111;
@@ -301,7 +309,7 @@
     }
     .result-top {
       display: grid;
-      grid-template-columns: 280px 1fr;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
       gap: 28px;
       align-items: stretch;
       margin-bottom: 22px;
@@ -328,8 +336,8 @@
       box-shadow: 6px 6px 0 #111;
     }
     .pie-chart {
-      width: 230px;
-      height: 230px;
+      width: min(230px, 62vw);
+      height: min(230px, 62vw);
       margin: 10px auto 18px;
       border-radius: 50%;
       border: 3px solid #111;
@@ -345,7 +353,7 @@
     .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #111; flex-shrink: 0; }
     .desc-box, .dark-fact, .action-box {
       margin-top: 20px;
-      padding: 28px;
+      padding: clamp(18px, 4vw, 28px);
       border-radius: 22px;
     }
     .desc-box {
@@ -359,31 +367,87 @@
       border: 2px solid #162509;
     }
     .dark-fact h3 { color: #8fc34a; font-size: 16px; letter-spacing: 0.12em; font-weight: 500; }
-    .dark-fact ul { margin: 0; padding-left: 22px; line-height: 2; font-size: 17px; }
+    .dark-fact ul { margin: 0; padding-left: 22px; line-height: 1.9; font-size: clamp(15px, 2.2vw, 17px); }
     .action-box {
       border: 2px solid #d8d8c8;
       background: #fffdf7;
     }
     .action-box h3 { color: #52680f; font-size: 16px; letter-spacing: 0.12em; font-weight: 500; }
-    .action-box .phone { font-size: 28px; line-height: 1.45; color: #111; }
+    .action-box .phone { font-size: clamp(20px, 4vw, 28px); line-height: 1.45; color: #111; word-break: break-word; }
     .action-link {
       display: inline-block;
       margin-top: 18px;
       font-family: monospace;
-      font-size: 18px;
+      font-size: clamp(14px, 2.5vw, 18px);
       font-weight: 900;
       color: #283b08;
       border-bottom: 2px solid #87906d;
       padding-bottom: 4px;
       text-decoration: none;
     }
+    @media (max-width: 900px) {
+      .result-top {
+        grid-template-columns: 1fr;
+      }
+      .result-animal-card {
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .pie-box {
+        width: 100%;
+      }
+    }
     @media (max-width: 760px) {
-      .card { padding: 24px; box-shadow: 6px 6px 0 #111; }
-      .grid, .result-top { grid-template-columns: 1fr; }
-      .floating-card { width: 110px; height: 150px; }
-      .top-nav { align-items: flex-start; }
-      .right-tools { flex-wrap: wrap; justify-content: flex-end; }
-      .pie-chart { width: 190px; height: 190px; }
+      .page {
+        align-items: flex-start;
+      }
+      .card {
+        box-shadow: 6px 6px 0 #111;
+      }
+      .grid, .result-top {
+        grid-template-columns: 1fr;
+      }
+      .floating-card:nth-child(1) { left: -18px; top: 84px; }
+      .floating-card:nth-child(2) { right: -20px; top: 92px; }
+      .floating-card:nth-child(3) { left: -28px; bottom: 70px; }
+      .floating-card:nth-child(4) { right: -22px; bottom: 70px; }
+      .top-nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .right-tools {
+        justify-content: flex-start;
+      }
+      .small-btn, .home-link, .lang-btn, .access-btn {
+        box-shadow: 3px 3px 0 #111;
+      }
+      .result-name {
+        line-height: 1.02;
+      }
+      .legend-row {
+        font-size: 13px;
+      }
+    }
+    @media (max-width: 420px) {
+      h1 {
+        letter-spacing: -1px;
+      }
+      .option {
+        align-items: flex-start;
+      }
+      .right-tools {
+        gap: 8px;
+      }
+      .small-btn, .home-link, .lang-btn, .access-btn {
+        font-size: 13px;
+      }
+      .pie-chart {
+        width: min(210px, 72vw);
+        height: min(210px, 72vw);
+      }
+      .action-link {
+        overflow-wrap: anywhere;
+      }
     }
   </style>
 </head>
