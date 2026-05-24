@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Animal Mirror</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--page-bg);
+      color: var(--text-main);
+      overflow-x: hidden;
+      --pie-awareness: #f2c300;
+      --pie-responsibility: #e66f1f;
+      --pie-moral: #2d7bbd;
+      --pie-response: #7f4db8;
+      --page-bg: #fbf1dd;
+      --card-bg: rgba(255,255,255,0.9);
+      --text-main: #151515;
+      --text-soft: #444;
+      --accent-dark: #111;
+    }
+    body.mode-soft {
+      filter: saturate(0.72);
+    }
+    body.mode-colorblind {
+      --pie-awareness: #0072B2;
+      --pie-responsibility: #E69F00;
+      --pie-moral: #009E73;
+      --pie-response: #CC79A7;
+      --page-bg: #f7f3e8;
+      --card-bg: rgba(255,255,255,0.96);
+      --text-main: #111;
+      --text-soft: #333;
+      --accent-dark: #000;
+      filter: saturate(0.95) contrast(1.08);
+    }
+    button { font-family: inherit; cursor: pointer; }
+    .hidden { display: none !important; }
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: clamp(16px, 4vw, 32px);
+      animation: pageFade 0.45s ease both;
+      position: relative;
+    }
+    @keyframes pageFade {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card {
+      width: min(100%, 1080px);
+      max-width: 1080px;
+      background: var(--card-bg);
+      border: 2px solid #111;
+      border-radius: clamp(18px, 3vw, 28px);
+      padding: clamp(18px, 4vw, 36px);
+      box-shadow: clamp(5px, 1.2vw, 10px) clamp(5px, 1.2vw, 10px) 0 #111;
+      position: relative;
+      z-index: 1;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(42px, 8vw, 86px);
+      line-height: 0.95;
+      letter-spacing: -2px;
+    }
+    h2 {
+      margin: 0 0 20px;
+      font-size: clamp(22px, 4vw, 38px);
+      line-height: 1.18;
+    }
+    h3 { margin: 0 0 12px; font-size: 20px; }
+    p { font-size: clamp(15px, 2.2vw, 18px); line-height: 1.65; color: var(--text-soft); }
+    .btn {
+      border: none;
+      background: #111;
+      color: white;
+      padding: clamp(12px, 2.4vw, 15px) clamp(18px, 3vw, 24px);
+      border-radius: 999px;
+      font-size: clamp(15px, 2vw, 17px);
+      font-weight: 900;
+      margin-top: 18px;
+      transition: 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+    .small-btn, .home-link, .access-btn {
+      border: 2px solid #111;
+      background: #fff;
+      color: #111;
+      padding: clamp(8px, 2vw, 10px) clamp(12px, 2.4vw, 16px);
+      border-radius: 999px;
+      font-weight: 900;
+      box-shadow: 4px 4px 0 #111;
+      transition: 0.2s ease;
+    }
+    .small-btn:hover, .home-link:hover, .access-btn:hover { transform: translateY(-2px); box-shadow: 6px 6px 0 #111; }
+    .access-btn.active {
+      background: #111;
+      color: white;
+    }
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .right-tools {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      max-width: 100%;
+    }
+    .tag {
+      display: inline-block;
+      background: #111;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    .float-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .floating-card {
+      position: absolute;
+      width: clamp(92px, 16vw, 150px);
+      height: clamp(126px, 22vw, 205px);
+      border: 2px solid #111;
+      border-radius: 18px;
+      background: white;
+      box-shadow: 6px 6px 0 #111;
+      opacity: 0.28;
+      overflow: hidden;
+      animation: floatCard 5s ease-in-out infinite;
+    }
+    .floating-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .floating-card:nth-child(1) { left: 5%; top: 12%; transform: rotate(-10deg); }
+    .floating-card:nth-child(2) { right: 7%; top: 10%; transform: rotate(9deg); animation-delay: 0.8s; }
+    .floating-card:nth-child(3) { left: 8%; bottom: 10%; transform: rotate(8deg); animation-delay: 1.4s; }
+    .floating-card:nth-child(4) { right: 10%; bottom: 9%; transform: rotate(-7deg); animation-delay: 2s; }
+    @keyframes floatCard {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -18px; }
+    }
+    .home-title { animation: titleIn 0.8s cubic-bezier(.2,.8,.2,1) both; }
+    .home-copy { animation: fadeUp 0.7s ease 0.18s both; }
+    .home-grid { animation: fadeUp 0.7s ease 0.32s both; }
+    .home-button { animation: fadeUp 0.7s ease 0.46s both; }
+    .home-stats { animation: fadeUp 0.7s ease 0.58s both; }
+    @keyframes titleIn {
+      from { opacity: 0; transform: translateY(26px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .info-box {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .info-box strong { display: block; margin-bottom: 6px; }
+
+    /* ── Roadkill Stats Block ── */
+    .stats-section {
+      margin-top: 32px;
+      padding-top: 28px;
+      border-top: 2px solid #111;
+    }
+    .stats-section-label {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 18px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+      gap: 14px;
+    }
+    .stat-card {
+      background: #fff8ea;
+      color: #111;
+      border: 2px solid #111;
+      border-radius: 18px;
+      padding: 20px 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 4px 4px 0 #111;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      bottom: -12px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(17,17,17,0.05);
+    }
+    .stat-card .stat-num {
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+    .stat-card .stat-num span {
+      color: #8b6f3d;
+    }
+    .stat-card .stat-label {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #4d4638;
+      font-weight: 600;
+    }
+    .stat-card.light {
+      background: #fff8ea;
+      color: #111;
+      border: 2px solid #111;
+      box-shadow: 4px 4px 0 #111;
+    }
+    .stat-card.light .stat-num span { color: #8b6f3d; }
+    .stat-card.light .stat-label { color: #4d4638; }
+    .stat-source {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #888;
+      line-height: 1.5;
+    }
+    .stat-source a { color: #555; }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #ddd;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #111;
+      border-radius: 99px;
+      transition: width 0.25s ease;
+    }
+    .question-animate { animation: questionSlide 0.38s ease both; }
+    @keyframes questionSlide {
+      from { opacity: 0; transform: translateX(28px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .option {
+      width: 100%;
+      display: flex;
+      gap: clamp(10px, 2vw, 16px);
+      text-align: left;
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 22px;
+      padding: clamp(14px, 2.8vw, 18px);
+      margin-bottom: 14px;
+      font-size: clamp(15px, 2.2vw, 17px);
+      line-height: 1.45;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    }
+    .option:hover { border-color: #111; }
+    .option.selected { background: #111; color: white; border-color: #111; transform: scale(1.015); }
+    .letter {
+      width: clamp(32px, 7vw, 36px); height: clamp(32px, 7vw, 36px); border-radius: 50%; background: #fbf1dd; color: #111;
+      display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0;
+    }
+    .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .loading-wrap { text-align: center; }
+    .mirror-loader {
+      width: 160px; height: 160px; margin: 20px auto 28px; border: 3px solid #111; border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #fff, #dfefff 55%, #111 56%, #111 58%, #fff 59%);
+      box-shadow: 8px 8px 0 #111;
+      animation: mirrorPulse 1.3s ease-in-out infinite;
+    }
+    @keyframes mirrorPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.06) rotate(2deg); }
+    }
+    .flip-stage {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .flip-card-wrap { perspective: 1200px; }
+    .flip-card {
+      width: min(330px, 78vw);
+      aspect-ratio: 3 / 4;
+      border: 2px solid #111;
+      border-radius: 22px;
+      box-shadow: 10px 10px 0 #111;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(.2,.8,.2,1);
+      position: relative;
+      background: white;
+    }
+    .flip-card.is-flipped { transform: rotateY(180deg); }
+    .flip-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      overflow: hidden;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flip-front {
+      background: #111;
+      color: #fff7d7;
+      flex-direction: column;
+      gap: 14px;
+      padding: 24px;
+    }
+    .flip-front .big-star { font-size: 60px; line-height: 1; }
+    .flip-back { transform: rotateY(180deg); background: white; }
+    .flip-back img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .flip-hint { margin-top: 28px; font-weight: 900; color: #333; }
+    .result-card {
+      max-width: min(980px, 100%);
+      background: rgba(255,255,255,0.94);
+    }
+    .result-name {
+      font-size: clamp(32px, 7vw, 72px);
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid #111;
+      padding-bottom: 12px;
+    }
+    .result-top {
+      display: grid;
+      grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+      gap: 28px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+    .result-animal-card {
+      width: 100%;
+      border: 2px solid #111;
+      border-radius: 22px;
+      box-shadow: 6px 6px 0 #111;
+      background: white;
+      overflow: hidden;
+      animation: moveToLeft 0.65s cubic-bezier(.2,.8,.2,1) both;
+    }
+    .result-animal-card img { width: 100%; display: block; }
+    @keyframes moveToLeft {
+      from { opacity: 0; transform: translate(160px, 120px) scale(1.25) rotateY(25deg); }
+      to { opacity: 1; transform: translate(0, 0) scale(1) rotateY(0); }
+    }
+    .pie-box {
+      border: 2px solid #111;
+      border-radius: 22px;
+      padding: 22px;
+      background: #fffdf7;
+      box-shadow: 6px 6px 0 #111;
+    }
+    .pie-chart {
+      width: min(230px, 62vw);
+      height: min(230px, 62vw);
+      margin: 10px auto 18px;
+      border-radius: 50%;
+      border: 3px solid #111;
+      background: conic-gradient(#f2c300 0deg 90deg, #e66f1f 90deg 180deg, #2d7bbd 180deg 270deg, #7f4db8 270deg 360deg);
+      box-shadow: 6px 6px 0 #111;
+    }
+    .legend { display: grid; gap: 10px; }
+    .legend-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-size: 14px; font-weight: 900;
+    }
+    .legend-left { display: flex; align-items: center; gap: 8px; }
+    .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #111; flex-shrink: 0; }
+    .desc-box, .dark-fact, .action-box {
+      margin-top: 20px;
+      padding: clamp(18px, 4vw, 28px);
+      border-radius: 22px;
+    }
+    .desc-box {
+      border: 2px solid #111;
+      background: white;
+      box-shadow: 6px 6px 0 #111;
+    }
+    .animal-description {
+      display: grid;
+      gap: 14px;
+    }
+    .animal-description p {
+      margin: 0;
+      font-size: clamp(15px, 2.2vw, 18px);
+      line-height: 1.72;
+      color: var(--text-soft);
+    }
+    .animal-description .desc-strip {
+      border-left: 7px solid #111;
+      background: #fff8ea;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .animal-description .desc-strip strong {
+      display: block;
+      color: #111;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .animal-description .reminder {
+      background: #f1e5cf;
+      color: #111;
+      border-radius: 16px;
+      padding: 15px 17px;
+      font-weight: 700;
+      line-height: 1.65;
+    }
+    .dark-fact {
+      background: #162509;
+      color: #fff1a6;
+      border: 2px solid #162509;
+    }
+    .dark-fact h3 { color: #8fc34a; font-size: 16px; letter-spacing: 0.12em; font-weight: 500; }
+    .dark-fact ul { margin: 0; padding-left: 22px; line-height: 1.9; font-size: clamp(15px, 2.2vw, 17px); }
+    .action-box {
+      border: 2px solid #d8d8c8;
+      background: #fffdf7;
+    }
+    .action-box h3 { color: #52680f; font-size: 16px; letter-spacing: 0.12em; font-weight: 500; }
+    .action-box .phone { font-size: clamp(20px, 4vw, 28px); line-height: 1.45; color: #111; word-break: break-word; }
+    .action-link {
+      display: inline-block;
+      margin-top: 18px;
+      font-family: monospace;
+      font-size: clamp(14px, 2.5vw, 18px);
+      font-weight: 900;
+      color: #283b08;
+      border-bottom: 2px solid #87906d;
+      padding-bottom: 4px;
+      text-decoration: none;
+    }
+    @media (max-width: 900px) {
+      .result-top { grid-template-columns: 1fr; }
+      .result-animal-card { max-width: 320px; margin: 0 auto; }
+      .pie-box { width: 100%; }
+    }
+    @media (max-width: 760px) {
+      .page { align-items: flex-start; }
+      .card { box-shadow: 6px 6px 0 #111; }
+      .grid, .result-top { grid-template-columns: 1fr; }
+      .floating-card:nth-child(1) { left: -18px; top: 84px; }
+      .floating-card:nth-child(2) { right: -20px; top: 92px; }
+      .floating-card:nth-child(3) { left: -28px; bottom: 70px; }
+      .floating-card:nth-child(4) { right: -22px; bottom: 70px; }
+      .top-nav { flex-direction: column; align-items: stretch; }
+      .right-tools { justify-content: flex-start; }
+      .small-btn, .home-link, .access-btn { box-shadow: 3px 3px 0 #111; }
+      .result-name { line-height: 1.02; }
+      .legend-row { font-size: 13px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 420px) {
+      h1 { letter-spacing: -1px; }
+      .option { align-items: flex-start; }
+      .right-tools { gap: 8px; }
+      .small-btn, .home-link, .access-btn { font-size: 13px; }
+      .pie-chart { width: min(210px, 72vw); height: min(210px, 72vw); }
+      .action-link { overflow-wrap: anywhere; }
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Mobile Friendly Layout ── */
+    @media (max-width: 760px) {
+      body {
+        overflow-x: hidden;
+      }
+      .page {
+        width: 100%;
+        min-height: 100svh;
+        padding: 12px;
+        align-items: flex-start;
+      }
+      .card {
+        width: 100%;
+        max-width: 100%;
+        padding: 18px;
+        border-radius: 22px;
+        box-shadow: 5px 5px 0 #111;
+      }
+      .top-nav {
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .right-tools {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+      }
+      .access-btn,
+      .home-link,
+      .small-btn {
+        padding: 8px 11px;
+        font-size: 12px;
+        box-shadow: 3px 3px 0 #111;
+        white-space: nowrap;
+      }
+      .tag {
+        font-size: 10px;
+        padding: 7px 10px;
+        letter-spacing: 0.08em;
+      }
+      h1 {
+        font-size: clamp(44px, 15vw, 64px);
+        line-height: 0.96;
+        letter-spacing: -1px;
+      }
+      h2 {
+        font-size: clamp(22px, 7vw, 32px);
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.58;
+      }
+      .home-copy {
+        max-width: 100%;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin: 20px 0;
+      }
+      .info-box {
+        padding: 15px;
+        border-radius: 16px;
+      }
+      .btn {
+        width: auto;
+        max-width: 100%;
+        padding: 13px 18px;
+        font-size: 16px;
+      }
+
+      /* Keep floating cards visible inside mobile screen */
+      .float-bg {
+        opacity: 1;
+        overflow: hidden;
+      }
+      .floating-card {
+        width: 92px;
+        height: 126px;
+        opacity: 0.18;
+        border-radius: 14px;
+        box-shadow: 4px 4px 0 #111;
+      }
+      .floating-card:nth-child(1) {
+        left: -24px;
+        top: 96px;
+        transform: rotate(-12deg);
+      }
+      .floating-card:nth-child(2) {
+        right: -22px;
+        top: 98px;
+        transform: rotate(10deg);
+      }
+      .floating-card:nth-child(3) {
+        left: -24px;
+        bottom: 80px;
+        transform: rotate(8deg);
+      }
+      .floating-card:nth-child(4) {
+        right: -22px;
+        bottom: 74px;
+        transform: rotate(-8deg);
+      }
+
+      .option {
+        padding: 14px;
+        border-radius: 18px;
+        font-size: 15px;
+      }
+      .letter {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+      }
+      .nav {
+        gap: 10px;
+      }
+
+      .result-top {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+      .result-animal-card {
+        max-width: 270px;
+        margin: 0 auto;
+      }
+      .pie-box,
+      .desc-box,
+      .dark-fact,
+      .action-box {
+        padding: 18px;
+        border-radius: 18px;
+      }
+      .result-name {
+        font-size: clamp(34px, 11vw, 50px);
+        line-height: 1.02;
+        word-break: normal;
+        overflow-wrap: anywhere;
+      }
+      .animal-description {
+        gap: 12px;
+      }
+      .animal-description p {
+        font-size: 15.5px;
+        line-height: 1.62;
+      }
+      .animal-description .desc-strip {
+        padding: 13px 14px;
+        border-left-width: 6px;
+      }
+      .animal-description .desc-strip strong {
+        font-size: 13px;
+        letter-spacing: 0.06em;
+      }
+      .animal-description .reminder {
+        padding: 14px;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+      .dark-fact ul {
+        font-size: 15px;
+        line-height: 1.65;
+      }
+      .action-box .phone {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page {
+        padding: 10px;
+      }
+      .card {
+        padding: 16px;
+      }
+      h1 {
+        font-size: clamp(42px, 16vw, 58px);
+      }
+      .home-title {
+        margin-top: 8px;
+      }
+      .right-tools {
+        gap: 7px;
+      }
+      .access-btn {
+        font-size: 11.5px;
+        padding: 7px 9px;
+      }
+      .floating-card {
+        width: 78px;
+        height: 107px;
+        opacity: 0.2;
+      }
+      .floating-card:nth-child(1) {
+        left: -20px;
+        top: 112px;
+      }
+      .floating-card:nth-child(2) {
+        right: -18px;
+        top: 116px;
+      }
+      .floating-card:nth-child(3) {
+        left: -18px;
+        bottom: 72px;
+      }
+      .floating-card:nth-child(4) {
+        right: -18px;
+        bottom: 68px;
+      }
+      .result-animal-card {
+        max-width: 240px;
+      }
+      .pie-chart {
+        width: min(200px, 66vw);
+        height: min(200px, 66vw);
+      }
+    }
+
+
+    /* Force quiz option text to stay black on mobile browsers */
+    .option,
+    .option span {
+      color: #111;
+      text-decoration: none;
+      -webkit-text-fill-color: #111;
+    }
+    .option.selected,
+    .option.selected span {
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+    }
+    .option .letter {
+      color: #111;
+      -webkit-text-fill-color: #111;
+    }
+    .option.selected .letter {
+      color: #111;
+      -webkit-text-fill-color: #111;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="home" class="page">
+    <div class="float-bg">
+      <div class="floating-card"><img src="1.png" alt="Kangaroo card"></div>
+      <div class="floating-card"><img src="2.png" alt="Koala card"></div>
+      <div class="floating-card"><img src="5.png" alt="Echidna card"></div>
+      <div class="floating-card"><img src="6.png" alt="Blue-tongue lizard card"></div>
+    </div>
+    <section class="card">
+      <div class="top-nav">
+        <span class="tag">Perceptual Boundary Quiz</span>
+        <div class="right-tools">
+          <button class="access-btn active" onclick="setVisualMode('normal')">Normal</button>
+          <button class="access-btn" onclick="setVisualMode('soft')">Soft</button>
+          <button class="access-btn" onclick="setVisualMode('colorblind')">Colorblind</button>
+        </div>
+      </div>
+      <h1 class="home-title">Animal Mirror</h1>
+      <p class="home-copy"><strong>Where do you draw the line between road space and animal life?</strong></p>
+      <p class="home-copy">This quiz does not test your personality. It reflects how you perceive roadkill: whether you notice its consequences, accept human responsibility, normalise animal deaths, emotionally process them, or choose to respond.</p>
+      <div class="grid home-grid">
+        <div class="info-box"><strong>Awareness</strong><span>Do you notice roadkill as a serious consequence?</span></div>
+        <div class="info-box"><strong>Responsibility</strong><span>Do you connect roadkill to human roads and driving?</span></div>
+        <div class="info-box"><strong>Moral Boundary</strong><span>Do you normalise or challenge animal deaths?</span></div>
+        <div class="info-box"><strong>Response</strong><span>Are you willing to take action safely?</span></div>
+      </div>
+      <button class="btn home-button" onclick="startQuiz()">Start the Quiz →</button>
+    </section>
+  </div>
+
+  <div id="quiz" class="page hidden">
+    <section class="card">
+      <div class="top-nav">
+        <button class="home-link" onclick="goHome()">← Home</button>
+        <div class="right-tools">
+          <span class="tag">Animal Mirror</span>
+          <button class="access-btn" onclick="setVisualMode('normal')">Normal</button>
+          <button class="access-btn" onclick="setVisualMode('soft')">Soft</button>
+          <button class="access-btn" onclick="setVisualMode('colorblind')">Colorblind</button>
+        </div>
+      </div>
+      <div class="progress-text"><span id="questionNumber"></span><span id="percent"></span></div>
+      <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+      <div id="questionBlock" class="question-animate">
+        <span id="dimension" class="tag"></span>
+        <h2 id="questionText"></h2>
+        <div id="options"></div>
+      </div>
+      <div class="nav">
+        <button class="small-btn" onclick="goBack()">Back</button>
+        <button id="nextBtn" class="btn" onclick="goNext()" disabled>Next →</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="loading" class="page hidden">
+    <section class="card loading-wrap">
+      <div class="top-nav">
+        <button class="home-link" onclick="goHome()">← Home</button>
+        <div class="right-tools">
+          <span class="tag">Animal Mirror</span>
+          <button class="access-btn" onclick="setVisualMode('normal')">Normal</button>
+          <button class="access-btn" onclick="setVisualMode('soft')">Soft</button>
+          <button class="access-btn" onclick="setVisualMode('colorblind')">Colorblind</button>
+        </div>
+      </div>
+      <span class="tag">Reflecting your boundary</span>
+      <div class="mirror-loader"></div>
+      <h2>Your Animal Mirror is forming...</h2>
+      <p>We are turning your answers into a visual boundary type.</p>
+    </section>
+  </div>
+
+  <div id="flip" class="page hidden">
+    <section class="card flip-stage">
+      <div>
+        <span class="tag">Click to reveal</span>
+        <div class="flip-card-wrap">
+          <div id="flipCard" class="flip-card" onclick="flipAndShowResult()">
+            <div class="flip-face flip-front">
+              <div class="big-star">✦</div>
+              <h2>Animal Mirror</h2>
+              <p>Tap the card to reveal your result.</p>
+            </div>
+            <div class="flip-face flip-back"><img id="flipImage" src="" alt="Result card"></div>
+          </div>
+        </div>
+        <div class="flip-hint">Your card will move into the final result page.</div>
+      </div>
+    </section>
+  </div>
+
+  <div id="result" class="page hidden">
+    <section class="card result-card">
+      <div class="top-nav">
+        <button class="home-link" onclick="goHome()">← Home</button>
+        <div class="right-tools">
+          <span class="tag">Your Animal Mirror Result</span>
+          <button class="access-btn" onclick="setVisualMode('normal')">Normal</button>
+          <button class="access-btn" onclick="setVisualMode('soft')">Soft</button>
+          <button class="access-btn" onclick="setVisualMode('colorblind')">Colorblind</button>
+        </div>
+      </div>
+      <h1 id="animalName" class="result-name"></h1>
+      <div class="result-top">
+        <div class="result-animal-card"><img id="animalImage" src="" alt="Animal result card"></div>
+        <div class="pie-box">
+          <h3>4 Boundary Scores</h3>
+          <div id="pieChart" class="pie-chart"></div>
+          <div id="pieLegend" class="legend"></div>
+        </div>
+      </div>
+      <div class="desc-box">
+        <h3>Animal Description</h3>
+        <div id="animalDescription" class="animal-description"></div>
+      </div>
+      <div class="dark-fact">
+        <h3 id="factTitle"></h3>
+        <ul id="factList"></ul>
+      </div>
+      <div class="action-box">
+        <h3>ONE THING YOU CAN DO NOW</h3>
+        <div id="actionText" class="phone"></div>
+        <a class="action-link" href="tel:1300094737">WIRES Wildlife Rescue 1300 094 737 →</a>
+      </div>
+      <button class="btn" onclick="restartQuiz()">Retake the Quiz</button>
+    </section>
+  </div>
+
+  <script>
+    let visualMode = 'normal';
+    let current = 0;
+    let answers = [];
+    let selected = null;
+    let finalData = null;
+
+    const animals = {
+      kangaroo: {
+        image: '1.png', type: 'Speed Boundary',
+        name: 'Kangaroo — The Crosser',
+        description: `
+          <p>You can quickly recognize danger and understand that animals appearing on the road is no small matter. You're not indifferent—when you actually see an animal, an accident, or an injured scene, you react immediately. But your awareness often comes only after the event has already occurred.</p>
+          <p>You're more of a quick responder than a proactive preventer. You slow down when you spot an animal, alert others, and make judgments—but before the animal even appears, you may not actively imagine the road as a space where animals might pass through.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>Quick reactions, direct action, and an unwillingness to completely ignore problems.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>You can be easily carried along by speed, destination, and immediate conditions until danger actually comes into view—only then do you begin to recognize its severity.</p></div>
+          <div class="reminder">Reminder: True protection doesn't begin only after animals appear, but starts by slowing down before they enter your living space.</div>
+        `,
+        facts: ['Kangaroos often move across rural roads, especially around dawn and dusk.', 'They can appear suddenly, so reacting only at the last second is often too late.', 'Slowing down before entering wildlife areas gives both driver and animal more time.'],
+        action: 'Save this number: WIRES 1300 094 737. Next time you see an injured animal, you know who to call.'
+      },
+      koala: {
+        image: '2.png', type: 'Emotional Boundary',
+        name: 'Koala — The Wanderer',
+        description: `
+          <p>You are easily moved by animals being injured or killed. To you, roadkill isn't a cold statistic or something fleeting on the roadside—it's the loss of a real life. You feel sadness, guilt, discomfort, and may even remember vividly for a long time after seeing related images or stories.</p>
+          <p>You have a strong emotional sensitivity and are more likely to see animals as living, vulnerable beings in need of protection. You don't easily accept animal death as a "normal" occurrence.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>Strong emotional sensitivity and an ability to recognize animals as vulnerable lives that deserve protection.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>You may have strong emotions, but they don't necessarily translate into action. When it comes time to do something, you may feel uncertain, hesitant, or unsure where to begin.</p></div>
+          <div class="reminder">Reminder: Feeling the weight of life is already important, but the next step is to turn that feeling into a concrete action.</div>
+        `,
+        facts: ['Koalas move slowly and can be highly vulnerable when crossing roads.', 'Habitat fragmentation means roads may cut through areas they rely on for movement.', 'Feeling sadness matters, but knowing the next step makes that care useful.'],
+        action: 'Save this number: WIRES 1300 094 737. If you see an injured animal, call for rescue advice.'
+      },
+      wombat: {
+        image: '3.png', type: 'Routine Boundary',
+        name: 'Wombat — The Digger',
+        description: `
+          <p>You are practical and accustomed to handling things at your own pace. You value efficiency, direction, tasks, and what needs to be accomplished in the present moment. You aren't necessarily being cold toward animals—it's simply that you've grown so used to seeing roads as spaces for human passage.</p>
+          <p>In your perception, roads exist primarily to get from one place to another. When animals appear on them, you might see them as an accident, a distraction, or part of the traffic conditions, rather than as a consequence of their habitat being fragmented.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>Stability, practicality, and resistance to being thrown off by emotions.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>When something happens too frequently, you may come to see it as normal. Roadkill might not be entirely meaningless to you, but it can be too easily dismissed as just another ordinary occurrence on the road.</p></div>
+          <div class="reminder">Reminder: Common does not mean normal. Roads are not just spaces for passage, but can also be survival zones where animals are forced to cross.</div>
+        `,
+        facts: ['Wombats are low, solid animals and can be difficult to notice in poor light.', 'A collision can seriously harm the animal and also damage vehicles.', 'When roadkill becomes routine, its impact becomes easier to ignore.'],
+        action: 'Save this number: WIRES 1300 094 737. If you see an injured wombat, stop safely and call for advice.'
+      },
+      quoll: {
+        image: '4.png', type: 'Adaptation Boundary',
+        name: 'Possum — The Adapter',
+        description: `
+          <p>You adapt well to your environment and generally avoid creating conflict. You recognize that roadkill is an issue and might feel it's unfortunate when animals are hit by cars, but you usually don't push for immediate change on this matter.</p>
+          <p>You tend to accept reality as it is. You might think, "This really isn't great, but roads are the way they are, and traffic can't just stop." This mindset helps you maintain balance in complex situations, but it also makes you gradually accustomed to the harm itself.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>Flexible, rational, non-extreme, and able to understand different perspectives.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>When you become too accustomed to adapting to systems, you may forget that systems themselves can be questioned and changed. You're not blind to the problem, but you may reframe it too quickly as “just how things are.”</p></div>
+          <div class="reminder">Reminder: Adaptation does not equal acceptance. Even after seeing a problem, you can still choose not to let it become the background.</div>
+        `,
+        facts: ['Possums are often active at night, when drivers may have less visibility.', 'Small wildlife is often overlooked because it does not feel like a major road hazard.', 'Adapting to roadkill as normal can hide the real loss behind it.'],
+        action: 'Save this number: WIRES 1300 094 737. Even small injured wildlife can be reported.'
+      },
+      echidna: {
+        image: '5.png', type: 'Avoidance Boundary',
+        name: 'Echidna — The Curler',
+        description: `
+          <p>You are highly sensitive to roadkill and easily feel uncomfortable, afraid, or anxious. You perceive the weight of such issues more quickly than many others. Seeing injured animals, death scenes, or related statistics may trigger an immediate and intense emotional reaction.</p>
+          <p>You're not indifferent—on the contrary, you may care too deeply. When emotions become overwhelming, your instinct isn't to approach but to withdraw. You might choose to look away, stay silent, avoid confronting it, and distance yourself from situations that make you uncomfortable.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>Sensitivity and alertness that help you notice dangers and suffering others may overlook.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>Intense emotions may paralyze you into inaction. In trying to protect yourself, avoidance may also prevent animals in genuine need from receiving a response.</p></div>
+          <div class="reminder">Reminder: You don't need to get close to danger, but you can still respond safely. Calling for help or reporting the location is also an action.</div>
+        `,
+        facts: ['Echidnas are among Australia’s slowest-moving animals and may need several minutes to cross a road.', 'Curling into a ball is their main defence, but it is ineffective against vehicles.', 'Echidnas are egg-laying mammals with low reproductive rates, so each death is not easily replaced.', 'If you see an echidna on the road, stop and wait if safe. Do not try to move it unless advised.'],
+        action: 'Save this number: WIRES 1300 094 737. Next time you see an injured animal, you know who to call.'
+      },
+      lizard: {
+        image: '6.png', type: 'Habitat Boundary',
+        name: 'Blue-tongue Lizard — The Owner',
+        description: `
+          <p>You don't merely see roads as spaces for human passage. You realize that before roads were built, these places were already home to animals moving, foraging, reproducing, and living. Animals didn't intrude upon the roads—rather, roads cut into their lives.</p>
+          <p>Your perceptual boundaries are closer to a habitat perspective. You understand roadkill as the result of conflicts between road systems, driving behavior, and ecological spaces, rather than merely an accident. You are more likely to see the responsibility behind human infrastructure.</p>
+          <div class="desc-strip"><strong>ADVANTAGE</strong><p>The ability to think at a systemic level and to understand the relationship between animal life and road design.</p></div>
+          <div class="desc-strip"><strong>BLIND SPOT</strong><p>You may feel disappointed by others' indifference or insensitivity, because not everyone naturally understands roads from an animal perspective.</p></div>
+          <div class="reminder">Reminder: You have already seen the issues facing life beyond the road. The next step is to help more people see this overlooked boundary.</div>
+        `,
+        facts: ['Blue-tongue lizards often move close to the ground and may be mistaken for debris on the road.', 'They are not invading the road; the road may be crossing their habitat and movement paths.', 'Seeing them as land users changes the road from a human shortcut into a shared boundary.'],
+        action: 'Save this number: WIRES 1300 094 737. If you find injured wildlife, report it safely.'
+      }
+    };
+
+    const questions = [
+      { d:'awareness', text:'You are driving on a rural road and there is a "Wildlife Visibility" sign on the side of the road. What does this sign mean to you?', o:[
+        ['A','This road crosses an animal habitat, so I need to slow down in advance.',{lizard:3,kangaroo:1}],
+        ['B','There might be animals nearby, so I slow down for a moment.',{kangaroo:3,koala:1}],
+        ['C',"It's just a warning sign; I noticed it but continued driving normally.",{quoll:2,wombat:2}],
+        ['D',"I was focused on the road ahead and didn't see the sign clearly.",{wombat:3}]
+      ]},
+      { d:'awareness', text:'You see an article online about roadkill. What do you do?', o:[
+        ['A','Click and read the whole thing.',{lizard:2,koala:2}],
+        ['B','Click and quickly look at the headline and pictures.',{kangaroo:2,koala:1}],
+        ['C','See it but scroll past.',{quoll:2,wombat:1}],
+        ['D','Never click on things like that.',{echidna:2,wombat:2}]
+      ]},
+      { d:'response', text:"You find an injured animal by the road that's still alive. What do you do?", o:[
+        ['A','Look up a rescue hotline and call for help.',{lizard:3,koala:1}],
+        ['B',"Want to help but don't know how, so just stand there.",{koala:3,echidna:1}],
+        ['C','Take a photo and post it online, then leave.',{quoll:2,kangaroo:1}],
+        ['D','Feel uncomfortable and want to leave the place quickly.',{echidna:3}]
+      ]},
+      { d:'response', text:"You're in the passenger seat and see an animal on the road ahead. What do you do?", o:[
+        ['A','Speak up and remind your friend to slow down or pay attention.',{lizard:2,kangaroo:2}],
+        ['B','Get scared and make a sound without thinking.',{echidna:2,kangaroo:1}],
+        ['C',"Feel nervous inside but don't say anything.",{koala:2,echidna:1}],
+        ['D',"Don't get involved, let your friend who's driving decide.",{quoll:2,wombat:2}]
+      ]},
+      { d:'awareness', text:'Would you take time to learn about roadkill on your own?', o:[
+        ['A','Look it up and spend time reading about it.',{lizard:3,koala:1}],
+        ['B',"Read it if someone shares it, but won't search for it myself.",{quoll:2,koala:1}],
+        ['C','Quickly skip past if I see something about it.',{wombat:2,echidna:1}],
+        ['D',"It's not something I care about.",{wombat:3}]
+      ]},
+      { d:'responsibility', text:'Someone says, "Animals get hit by cars because they run onto the road, it\'s not our problem." What do you do?', o:[
+        ['A',"Strongly disagree and try to explain why that's a problem.",{lizard:3,kangaroo:1}],
+        ['B',"Feel it's not right but don't want to argue.",{koala:2,echidna:1}],
+        ['C','Think they have a point.',{quoll:2,wombat:1}],
+        ['D','Agree, animals on the road are taking a risk.',{wombat:3}]
+      ]},
+      { d:'responsibility', text:'A pregnant kangaroo dies from roadkill, but the baby is still alive. How do you react?', o:[
+        ['A','Immediately look up how to help the baby, feel a strong sense of duty.',{lizard:3,koala:1}],
+        ['B',"Feel very sad but don't know what to do.",{koala:3}],
+        ['C',"Feel bad but think it's part of nature.",{quoll:2,wombat:1}],
+        ['D',"Know about it but don't feel strongly either way.",{wombat:2,quoll:1}]
+      ]},
+      { d:'responsibility', text:'If a koala and a car collide, who do you think is at fault?', o:[
+        ['A','Mostly humans, we built roads that took over their home.',{lizard:3}],
+        ['B','Both sides, but humans should be more careful.',{kangaroo:2,koala:1}],
+        ['C',"It's an accident, no one is really at fault.",{quoll:2}],
+        ['D',"Animals don't know how to avoid cars, it's hard for humans to stop it completely.",{wombat:3}]
+      ]},
+      { d:'response', text:"There's an app to record roadkill locations to help with research, but you need to stop and take photos. What do you do?", o:[
+        ['A','Willing to do it, will stop every time I see roadkill.',{lizard:3}],
+        ['B',"Will do it if it's easy to stop, won't go back if I've passed it.",{kangaroo:2,quoll:1}],
+        ['C',"Think it's meaningful but won't do it myself.",{koala:2,quoll:1}],
+        ['D',"Probably not, it's too much trouble and doesn't feel that meaningful.",{wombat:2,echidna:1}]
+      ]},
+      { d:'responsibility', text:'How do you see the conflict between animals getting hit by cars and the need for convenient roads?', o:[
+        ['A','Animal lives should come first, we need to seriously rethink road design.',{lizard:3}],
+        ['B','Both matter, we need to find a better balance.',{kangaroo:2,koala:1}],
+        ['C','Traffic needs are just reality, conservation is extra effort.',{quoll:2,wombat:1}],
+        ['D','Building roads is more important than animal protection.',{wombat:3}]
+      ]},
+      { d:'emotional', text:'You see a kangaroo get hit by a car. After that…', o:[
+        ['A','The image stays in your head for a long time.',{echidna:3,koala:1}],
+        ['B','Feel bad for the rest of the day, but feel better the next day.',{koala:2}],
+        ['C','Feel a bit uncomfortable but handle it quickly.',{quoll:2}],
+        ['D',"Feel sad, but it doesn't affect your daily life.",{wombat:1,quoll:1}]
+      ]},
+      { d:'awareness', text:'When you drive, what do you usually focus on?', o:[
+        ['A','Everything on the road, including the bushes on the sides.',{lizard:2,echidna:1}],
+        ['B','Mostly the road, sometimes glance at the sides.',{kangaroo:2}],
+        ['C','Focus on the car ahead and the road, rarely look at the sides.',{quoll:2,wombat:1}],
+        ['D','Just focus on driving, almost never look at the sides.',{wombat:3}]
+      ]},
+      { d:'moral', text:'Someone says, "So many animals die each year anyway, a few less doesn\'t matter." What do you do?', o:[
+        ['A',"Can't help it, talk back right away.",{kangaroo:2,lizard:1}],
+        ['B','You feel very uncomfortable but try to calm yourself down.',{echidna:2,koala:1}],
+        ['C','You disagree but will try to reason with the other person.',{lizard:2,koala:1}],
+        ['D',"You think the other person is right and don't feel any need to react.",{wombat:3}]
+      ]},
+      { d:'emotional', text:'You see the number, "Millions of animals die from roadkill in Australia every year." How do you react?', o:[
+        ['A',"Shocked, can't calm down for a long time.",{echidna:3}],
+        ['B','Feeling heavy-hearted, but unsure what to do.',{koala:3}],
+        ['C',"Think it's serious but forget about it after reading.",{quoll:2,kangaroo:1}],
+        ['D',"It's just a number, don't feel anything special.",{wombat:3}]
+      ]},
+      { d:'emotional', text:'You find out a roadkill happened yesterday on a road you walked on. What do you do?', o:[
+        ['A','Feel really bad, keep thinking about it.',{echidna:3,koala:1}],
+        ['B','Feel a bit sad but forget quickly.',{koala:2,quoll:1}],
+        ['C',"Think it's pretty common, don't feel much about it.",{quoll:2,wombat:1}],
+        ['D',"Nothing to do with me, don't really care.",{wombat:3}]
+      ]}
+    ];
+
+    const dimensions = { awareness: 'Awareness Boundary', response: 'Response Boundary', responsibility: 'Responsibility Boundary', moral: 'Moral Boundary', emotional: 'Emotional Boundary' };
+    const pieLabels = { Awareness: 'Awareness', Responsibility: 'Responsibility', Moral: 'Moral', Response: 'Response' };
+
+    function setVisualMode(mode) {
+      visualMode = mode;
+      document.body.classList.remove('mode-soft', 'mode-colorblind');
+      if (mode === 'soft') document.body.classList.add('mode-soft');
+      if (mode === 'colorblind') document.body.classList.add('mode-colorblind');
+      document.querySelectorAll('.access-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll(`.access-btn[onclick="setVisualMode('${mode}')"]`).forEach(btn => btn.classList.add('active'));
+      if (finalData) renderPieChart(finalData.boundaryScores);
+    }
+
+    function getPieColors() {
+      const styles = getComputedStyle(document.body);
+      return {
+        Awareness: styles.getPropertyValue('--pie-awareness').trim(),
+        Responsibility: styles.getPropertyValue('--pie-responsibility').trim(),
+        Moral: styles.getPropertyValue('--pie-moral').trim(),
+        Response: styles.getPropertyValue('--pie-response').trim()
+      };
+    }
+
+    function show(id) {
+      ['home','quiz','loading','flip','result'].forEach(page => document.getElementById(page).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function goHome() { current = 0; answers = []; selected = null; finalData = null; document.getElementById('flipCard').classList.remove('is-flipped'); show('home'); }
+
+    function startQuiz() { current = 0; answers = []; selected = null; finalData = null; show('quiz'); renderQuestion(); }
+
+    function renderQuestion(animate = true) {
+      const block = document.getElementById('questionBlock');
+      if (animate && block) { block.classList.remove('question-animate'); void block.offsetWidth; block.classList.add('question-animate'); }
+      const q = questions[current];
+      selected = answers[current] ?? null;
+      document.getElementById('questionNumber').textContent = `Question ${current + 1} / ${questions.length}`;
+      document.getElementById('percent').textContent = `${Math.round(((current + 1) / questions.length) * 100)}%`;
+      document.getElementById('progressFill').style.width = `${((current + 1) / questions.length) * 100}%`;
+      document.getElementById('dimension').textContent = dimensions[q.d];
+      document.getElementById('questionText').textContent = `Q${current + 1}. ${q.text}`;
+      const optionsBox = document.getElementById('options');
+      optionsBox.innerHTML = '';
+      q.o.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option' + (selected === index ? ' selected' : '');
+        btn.innerHTML = `<span class="letter">${option[0]}</span><span>${option[1]}</span>`;
+        btn.onclick = () => chooseOption(index);
+        optionsBox.appendChild(btn);
+      });
+      document.getElementById('nextBtn').disabled = selected === null;
+      document.getElementById('nextBtn').textContent = current === questions.length - 1 ? 'See Result →' : 'Next →';
+    }
+
+    function chooseOption(index) {
+      selected = index; answers[current] = index;
+      document.querySelectorAll('.option').forEach((btn, i) => { if (i === index) btn.classList.add('selected'); else btn.classList.remove('selected'); });
+      document.getElementById('nextBtn').disabled = false;
+    }
+
+    function goNext() { if (selected === null) return; if (current === questions.length - 1) showLoadingResult(); else { current++; renderQuestion(); } }
+    function goBack() { if (current > 0) { current--; renderQuestion(); } }
+
+    function showLoadingResult() { show('loading'); setTimeout(prepareFlip, 900); }
+
+    function prepareFlip() {
+      const scores = calculateScores();
+      finalData = scores;
+      const animal = animals[scores.winner];
+      document.getElementById('flipCard').classList.remove('is-flipped');
+      document.getElementById('flipImage').src = animal.image;
+      show('flip');
+    }
+
+    function flipAndShowResult() {
+      document.getElementById('flipCard').classList.add('is-flipped');
+      setTimeout(() => { renderResult(finalData.animalScores, finalData.boundaryScores, finalData.winner); show('result'); }, 850);
+    }
+
+    function addScores(target, scores) { for (const key in scores) target[key] += scores[key]; }
+
+    function calculateScores() {
+      const animalScores = { kangaroo:0, koala:0, wombat:0, quoll:0, echidna:0, lizard:0 };
+      const boundaryScores = { Awareness:0, Responsibility:0, Moral:0, Response:0 };
+      answers.forEach((answerIndex, qIndex) => {
+        const q = questions[qIndex];
+        const option = q.o[answerIndex];
+        addScores(animalScores, option[2]);
+        const value = option[0] === 'A' ? 4 : option[0] === 'B' ? 3 : option[0] === 'C' ? 2 : 1;
+        if (q.d === 'awareness' || q.d === 'emotional') boundaryScores.Awareness += value;
+        if (q.d === 'responsibility') boundaryScores.Responsibility += value;
+        if (q.d === 'moral') boundaryScores.Moral += value;
+        if (q.d === 'response') boundaryScores.Response += value;
+      });
+      const winner = Object.keys(animalScores).sort((a,b) => animalScores[b] - animalScores[a])[0];
+      return { animalScores, boundaryScores, winner };
+    }
+
+    function renderResult(animalScores, boundaryScores, winner) {
+      const animal = animals[winner];
+      document.getElementById('animalImage').src = animal.image;
+      document.getElementById('animalName').textContent = animal.name;
+      document.getElementById('animalDescription').innerHTML = animal.description;
+      document.getElementById('factTitle').textContent = `ABOUT ${animal.name.split(' — ')[0].toUpperCase()} & ROADKILL`;
+      const factList = document.getElementById('factList');
+      factList.innerHTML = '';
+      animal.facts.forEach(fact => { const li = document.createElement('li'); li.textContent = fact; factList.appendChild(li); });
+      document.getElementById('actionText').textContent = animal.action;
+      renderPieChart(boundaryScores);
+    }
+
+    function renderPieChart(boundaryScores) {
+      const colors = getPieColors();
+      const data = [
+        ['Awareness', boundaryScores.Awareness, colors.Awareness],
+        ['Responsibility', boundaryScores.Responsibility, colors.Responsibility],
+        ['Moral', boundaryScores.Moral, colors.Moral],
+        ['Response', boundaryScores.Response, colors.Response]
+      ];
+      const total = data.reduce((sum, item) => sum + item[1], 0) || 1;
+      let angle = 0;
+      const segments = data.map(item => { const start = angle; const end = angle + (item[1] / total) * 360; angle = end; return `${item[2]} ${start}deg ${end}deg`; });
+      document.getElementById('pieChart').style.background = `conic-gradient(${segments.join(', ')})`;
+      const legend = document.getElementById('pieLegend');
+      legend.innerHTML = '';
+      data.forEach(([label, value, color]) => {
+        const percent = Math.round((value / total) * 100);
+        const row = document.createElement('div');
+        row.className = 'legend-row';
+        row.innerHTML = `<span class="legend-left"><span class="dot" style="background:${color}"></span>${pieLabels[label]}</span><span>${percent}%</span>`;
+        legend.appendChild(row);
+      });
+    }
+
+    function restartQuiz() { startQuiz(); }
+  </script>
+</body>
+</html>
