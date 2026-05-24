@@ -728,6 +728,28 @@
       }
     }
 
+
+    /* Force quiz option text to stay black on mobile browsers */
+    .option,
+    .option span {
+      color: #111;
+      text-decoration: none;
+      -webkit-text-fill-color: #111;
+    }
+    .option.selected,
+    .option.selected span {
+      color: #fff;
+      -webkit-text-fill-color: #fff;
+    }
+    .option .letter {
+      color: #111;
+      -webkit-text-fill-color: #111;
+    }
+    .option.selected .letter {
+      color: #111;
+      -webkit-text-fill-color: #111;
+    }
+
   </style>
 </head>
 <body>
